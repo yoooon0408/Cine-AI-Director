@@ -1,0 +1,23 @@
+{
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionName": "0.1.0",
+    "FriendlyName": "Cine AI Director",
+    "Description": "AI 기반 자율 카메라 시스템 - 캐릭터 움직임과 씬 컨텍스트를 분석해 최적의 시네마틱 앵글을 자동 선택합니다.",
+    "Category": "Cinematics",
+    "CreatedBy": "Cine-AI-Director Team",
+    "CanContainContent": true,
+    "IsBetaVersion": true,
+    "Modules": [
+        {
+            "Name": "CineAIDirector",
+            "Type": "Runtime",
+            "LoadingPhase": "Default"
+        },
+        {
+            "Name": "CineAIDirectorEditor",
+            "Type": "Editor",
+            "LoadingPhase": "PostEngineInit"
+        }
+    ]
+}
