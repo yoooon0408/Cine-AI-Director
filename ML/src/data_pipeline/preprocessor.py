@@ -33,23 +33,32 @@ def preprocess(df: pd.DataFrame, train_ratio: float = 0.8) -> tuple[dict, dict]:
     원본 DataFrame을 학습/검증 세트로 전처리합니다.
 
     Returns:
-        (train_data, val_data) - 각각 {"states", "actions", "rewards"} 딕셔너리
+        (train_data, val_data) - 각각 {"states", "states_raw", "actions", "rewards"} 딕셔너리
+        states_raw : 정규화 전 원본 값. 환경에서 reward 계산 시 scene_type 등을 복원하는 데 사용.
     """
     df = df.dropna(subset=STATE_COLUMNS + ACTION_COLUMNS + ["reward"])
 
-    states  = df[STATE_COLUMNS].values.astype(np.float32)
-    actions = df[ACTION_COLUMNS].values.astype(np.float32)
-    rewards = df["reward"].values.astype(np.float32)
-
-    # 정규화
-    states = _normalize(states)
+    states_raw = df[STATE_COLUMNS].values.astype(np.float32)  # 정규화 전 저장
+    states     = _normalize(states_raw)
+    actions    = df[ACTION_COLUMNS].values.astype(np.float32)
+    rewards    = df["reward"].values.astype(np.float32)
 
     # 분리
     n = len(df)
     split = int(n * train_ratio)
 
-    train = {"states": states[:split], "actions": actions[:split], "rewards": rewards[:split]}
-    val   = {"states": states[split:], "actions": actions[split:], "rewards": rewards[split:]}
+    train = {
+        "states":     states[:split],
+        "states_raw": states_raw[:split],
+        "actions":    actions[:split],
+        "rewards":    rewards[:split],
+    }
+    val = {
+        "states":     states[split:],
+        "states_raw": states_raw[split:],
+        "actions":    actions[split:],
+        "rewards":    rewards[split:],
+    }
 
     print(f"[preprocessor] 학습: {split}개 / 검증: {n - split}개")
     return train, val
