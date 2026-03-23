@@ -57,9 +57,18 @@ protected:
 private:
     FString CurrentSessionID;
     FString CurrentLogFilePath;
+
+    // 리워드 업데이트 전용 파일 경로 (reward_updates_<session>.jsonl)
+    FString RewardUpdateFilePath;
+
     TArray<TSharedPtr<FJsonObject>> PendingEntries;
+
+    // UpdateReward()로 누적된 업데이트 맵 (ID → 최종 reward)
+    // EndPlay 시 별도 파일에 플러시됩니다.
+    TMap<FString, float> PendingRewardUpdates;
 
     void InitLogFile();
     void FlushToDisk();
+    void FlushRewardUpdates();
     FString GenerateID() const;
 };

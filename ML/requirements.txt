@@ -14,3 +14,8 @@ tensorboard>=2.15.0
 # 유틸리티
 tqdm>=4.66.0
 python-dotenv>=1.0.0
+
+# 로컬 추론 서버 (ML 모델을 UE5에 HTTP로 서빙)
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.0.0

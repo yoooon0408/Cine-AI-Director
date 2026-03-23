@@ -1,7 +1,6 @@
 // Copyright Cine-AI-Director Team. All Rights Reserved.
 
 #include "Camera/CineAICameraActor.h"
-#include "Camera/CineAICameraComponent.h"
 
 ACineAICameraActor::ACineAICameraActor()
 {

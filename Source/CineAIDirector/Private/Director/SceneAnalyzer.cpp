@@ -1,7 +1,9 @@
 // Copyright Cine-AI-Director Team. All Rights Reserved.
 
 #include "Director/SceneAnalyzer.h"
+#include "Camera/ICineCharacterInterface.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 USceneAnalyzer::USceneAnalyzer()
@@ -35,9 +37,10 @@ TArray<FCineCharacterInfo> USceneAnalyzer::GatherCharacterInfos()
 {
     TArray<FCineCharacterInfo> Infos;
 
-    // 레벨의 모든 Character 액터를 수집
     TArray<AActor*> FoundActors;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacter::StaticClass(), FoundActors);
+
+    ACharacter* PlayerChar = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
     for (AActor* Actor : FoundActors)
     {
@@ -47,17 +50,35 @@ TArray<FCineCharacterInfo> USceneAnalyzer::GatherCharacterInfos()
         FCineCharacterInfo Info;
         Info.Location = Character->GetActorLocation();
         Info.Rotation = Character->GetActorRotation();
+        Info.bIsPlayer = (Character == PlayerChar);
 
         if (UMovementComponent* MoveComp = Character->GetMovementComponent())
         {
             Info.Velocity = MoveComp->Velocity;
         }
 
-        // 플레이어 캐릭터인지 체크
-        Info.bIsPlayer = (Character == UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+        // ───────────────────────────────────────────────────────────────
+        // ICineCharacterInterface 연동
+        // 캐릭터 블루프린트에서 이 인터페이스를 구현했으면 자동으로 사용합니다.
+        // 구현 안 해도 기본값(풀피, 비대화, 비전투)으로 정상 작동합니다.
+        // ───────────────────────────────────────────────────────────────
+        if (Character->GetClass()->ImplementsInterface(UCineCharacterInterface::StaticClass()))
+        {
+            Info.HealthNormalized = ICineCharacterInterface::Execute_GetHealthNormalized(Character);
+            Info.bIsSpeaking      = ICineCharacterInterface::Execute_IsSpeaking(Character);
+            Info.bIsInCombat      = ICineCharacterInterface::Execute_IsInCombat(Character);
+            Info.bIsDead          = ICineCharacterInterface::Execute_IsDead(Character);
 
-        // TODO: 체력/대화 상태는 게임 캐릭터 클래스에서 가져오도록 수정 필요
-        // [언리얼 담당] 여기에 게임 캐릭터의 체력/대화 인터페이스를 연결해주세요.
+            // 체력이 0이면 사망 처리
+            if (Info.HealthNormalized <= 0.0f)
+            {
+                Info.bIsDead = true;
+            }
+        }
+        else
+        {
+            // 인터페이스 미구현 시 기본값 유지 (HealthNormalized=1.0, bIsDead=false 등)
+        }
 
         Infos.Add(Info);
     }
@@ -67,23 +88,59 @@ TArray<FCineCharacterInfo> USceneAnalyzer::GatherCharacterInfos()
 
 ECineSceneType USceneAnalyzer::ClassifyScene(const TArray<FCineCharacterInfo>& Characters)
 {
-    // TODO: [언리얼 담당] 게임 상황에 맞게 분류 로직을 구체화해주세요.
-    // 예시: 적이 가까이 있으면 Combat, 캐릭터가 서 있으면 Dialogue 등
+    // 수동 오버라이드가 설정되어 있으면 즉시 반환
+    if (bOverrideSceneType)
+    {
+        return OverrideSceneType;
+    }
 
-    bool bAnyMovingFast = false;
+    if (Characters.IsEmpty())
+    {
+        return ECineSceneType::Unknown;
+    }
+
+    // 각 상태 집계
+    bool bAnyDead      = false;
+    bool bAnySpeaking  = false;
+    bool bAnyInCombat  = false;
+    bool bAnyMoving    = false;
+    int32 PlayerCount  = 0;
+
     for (const FCineCharacterInfo& Char : Characters)
     {
-        if (Char.Velocity.SizeSquared() > 200.0f * 200.0f)
+        if (Char.bIsDead || Char.HealthNormalized <= 0.0f) bAnyDead     = true;
+        if (Char.bIsSpeaking)                              bAnySpeaking = true;
+        if (Char.bIsPlayer)                                PlayerCount++;
+
+        // ICineCharacterInterface 전투 플래그, 또는 속도 기반 판단
+        if (Char.bIsInCombat)
         {
-            bAnyMovingFast = true;
-            break;
+            bAnyInCombat = true;
+        }
+        else if (Char.Velocity.SizeSquared() > CombatVelocityThreshold * CombatVelocityThreshold)
+        {
+            bAnyMoving = true;
         }
     }
 
-    if (bAnyMovingFast)
-    {
-        return ECineSceneType::Exploration;
-    }
+    // 우선순위: 사망 > 전투 > 대화 > 탐험 > 알 수 없음
+    if (bAnyDead)                   return ECineSceneType::Death;
+    if (bAnyInCombat)               return ECineSceneType::Combat;
+    if (bAnySpeaking)               return ECineSceneType::Dialogue;
+    if (bAnyMoving)                 return ECineSceneType::Exploration;
+    // 캐릭터가 2명 이상이고 멈춰 있으면 대화 상황으로 간주
+    if (Characters.Num() >= 2)      return ECineSceneType::Dialogue;
 
-    return ECineSceneType::Dialogue;
+    return ECineSceneType::Exploration;
+}
+
+void USceneAnalyzer::SetSceneTypeOverride(ECineSceneType SceneType)
+{
+    bOverrideSceneType = true;
+    OverrideSceneType  = SceneType;
+}
+
+void USceneAnalyzer::ClearSceneTypeOverride()
+{
+    bOverrideSceneType = false;
 }

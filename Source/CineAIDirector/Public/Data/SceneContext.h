@@ -33,6 +33,14 @@ struct CINEAIDIRECTOR_API FCineCharacterInfo
     UPROPERTY(BlueprintReadOnly)
     bool bIsSpeaking = false;
 
+    // 이 캐릭터가 현재 전투 상태인지 (ICineCharacterInterface 구현 시 채워짐)
+    UPROPERTY(BlueprintReadOnly)
+    bool bIsInCombat = false;
+
+    // 이 캐릭터가 사망 상태인지 (ICineCharacterInterface 구현 시 채워짐)
+    UPROPERTY(BlueprintReadOnly)
+    bool bIsDead = false;
+
     // 이 캐릭터가 주인공인지
     UPROPERTY(BlueprintReadOnly)
     bool bIsPlayer = false;
