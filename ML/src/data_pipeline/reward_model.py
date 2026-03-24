@@ -81,7 +81,7 @@ def compute_reward(row: pd.Series) -> float:
     duration_score = _score_shot_duration(float(row.get("state_shot_duration", 0.0)))
 
     # 가중치는 UE5 RewardEvaluator.cpp와 동일하게 유지
-    reward = shot_score * 0.4 + duration_score * 0.2
+    reward = shot_score * 0.7 + duration_score * 0.3
     return float(np.clip(reward, -1.0, 1.0))
 
 

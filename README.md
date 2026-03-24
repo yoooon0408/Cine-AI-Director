@@ -145,7 +145,7 @@ cd ML
 pip install -r requirements.txt
 
 # UE5 데이터 없이 즉시 synthetic 학습
-python src/run_pipeline.py --mode synthetic --timesteps 200000
+python src/run_pipeline.py --mode synthetic --timesteps 500000
 
 # 로컬 추론 서버 실행 (학습 후)
 python -m src.inference.server
@@ -163,7 +163,10 @@ python -m src.inference.server
 | `Data/ShotTypes.h` | `reward_model.py` | ShotType / SceneType enum 숫자 |
 | `Data/SceneContext.h` | `preprocessor.py` STATE_COLUMNS | 씬 상태 필드 이름·순서 |
 | `Logging/ExperienceLogger.cpp` | `collector.py` | JSONL 필드 구조 |
-| `Logging/RewardEvaluator.cpp` | `reward_model.py` | 리워드 가중치 |
+| `Logging/RewardEvaluator.cpp` | `reward_model.py` | 리워드 가중치 ⚠️ |
+
+> **⚠️ 동기화 필요:** `reward_model.py` 가중치가 `shot_score * 0.7 + duration_score * 0.3` 으로 업데이트됨.
+> UE5 열면 `RewardEvaluator.cpp` 의 동일 수식도 반드시 맞춰야 함.
 
 ---
 

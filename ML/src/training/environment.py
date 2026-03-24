@@ -161,5 +161,5 @@ class CineDirectorEnv(gym.Env):
         preferred      = SCENE_PREFERRED_SHOTS.get(scene_type, [])
         shot_score     = 1.0 if shot_type in preferred else 0.0
         duration_score = _score_shot_duration(shot_duration)
-        reward = shot_score * 0.4 + duration_score * 0.2
+        reward = shot_score * 0.7 + duration_score * 0.3
         return float(np.clip(reward, -1.0, 1.0))

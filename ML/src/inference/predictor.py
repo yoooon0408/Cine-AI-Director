@@ -128,7 +128,7 @@ class CineDirectorPredictor:
             "confidence":         confidence,
             "transition_type":    SCENE_TRANSITION_TYPE.get(scene_type, 1),
             "transition_duration": SCENE_TRANSITION_DURATION.get(scene_type, 0.8),
-            "reasoning":          f"PPO inference — scene={scene_type}, shot={shot_type}",
+            "reasoning":          f"PPO inference - scene={scene_type}, shot={shot_type}",
         }
 
     def _build_observation(self, state_dict: dict) -> np.ndarray:
@@ -172,5 +172,5 @@ class CineDirectorPredictor:
             "confidence":          0.4,
             "transition_type":     SCENE_TRANSITION_TYPE.get(scene_type, 1),
             "transition_duration": SCENE_TRANSITION_DURATION.get(scene_type, 0.8),
-            "reasoning":           f"Fallback (no model) — scene={scene_type}, shot={shot_type}",
+            "reasoning":           f"Fallback (no model) - scene={scene_type}, shot={shot_type}",
         }
