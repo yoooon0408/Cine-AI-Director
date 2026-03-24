@@ -64,7 +64,7 @@ def train(
         ),
     ]
 
-    print(f"[trainer] 훈련 시작 — mode={mode}, {total_timesteps:,} 스텝")
+    print(f"[trainer] 훈련 시작 - mode={mode}, {total_timesteps:,} 스텝")
     model.learn(total_timesteps=total_timesteps, callback=callbacks)
 
     model.save(str(EXPORT_DIR / "cine_director_final"))

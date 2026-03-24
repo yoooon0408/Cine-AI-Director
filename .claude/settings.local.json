@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(del:*)"
+      "Bash(del:*)",
+      "Bash(pip install:*)",
+      "Bash(python run_pipeline.py --mode synthetic --timesteps 100000)",
+      "Bash(curl -s http://127.0.0.1:8765/health)",
+      "Bash(start /B python -m inference.server --host 127.0.0.1 --port 8765)",
+      "Bash(python -c \":*)",
+      "Bash(python run_pipeline.py --mode synthetic --timesteps 500000)"
     ]
   }
 }
