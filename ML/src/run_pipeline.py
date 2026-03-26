@@ -29,7 +29,7 @@ def run_dataset_pipeline() -> None:
     from data_pipeline.collector import load_experiences
     from data_pipeline.preprocessor import preprocess, save_processed
 
-    raw_log_dir    = Path(__file__).parents[1] / "Saved" / "CineAILogs"
+    raw_log_dir    = Path(__file__).parents[2] / "Saved" / "CineAILogs"
     processed_dir  = Path(__file__).parents[0].parent / "data" / "processed"
 
     print("[pipeline] UE5 로그 로드 중...")
