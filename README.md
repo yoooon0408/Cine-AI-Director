@@ -150,12 +150,20 @@ Cine-AI-Director/
 cd ML
 pip install -r requirements.txt
 
-# UE5 데이터 없이 즉시 synthetic 학습
+# 1. UE5 데이터 없이 즉시 synthetic 학습
 python src/run_pipeline.py --mode synthetic --timesteps 500000
 
-# 로컬 추론 서버 실행 (학습 후)
-python -m src.inference.server
+# 2. 로컬 추론 서버 실행 (학습 후)
+cd src
+python -m inference.server
 # → UE5 AIDirector > bUseLocalInferenceServer = true 설정
+# → LocalInferenceEndpoint = "http://127.0.0.1:8765/predict"
+
+# 3. UE5 로그 데이터로 재학습 (UE5 플레이 후)
+python src/run_pipeline.py --mode dataset
+
+# 4. 포트폴리오 시각화 생성
+# visualizer.py 참고 — models/exports/*.png 로 저장됨
 ```
 
 ---

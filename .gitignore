@@ -73,3 +73,14 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# ML 전처리 결과 (UE5 로그에서 재생성 가능)
+ML/data/processed/
+
+# UE5 경험 로그 (Saved/ 는 이미 위에서 제외됨)
+Saved/

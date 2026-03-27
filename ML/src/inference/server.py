@@ -17,6 +17,7 @@
 import sys
 import json
 import argparse
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 # ML/src 디렉터리가 sys.path에 없으면 추가
@@ -43,13 +44,25 @@ from inference.predictor import CineDirectorPredictor
 # FastAPI 앱
 # ─────────────────────────────────────────────────────────────────────
 
+predictor = CineDirectorPredictor()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ok = predictor.load()
+    if ok:
+        print("[server] 모델 로드 완료 - PPO 추론 모드")
+    else:
+        print("[server] 모델 없음 - 규칙 기반 폴백 모드로 작동합니다")
+    yield
+
+
 app = FastAPI(
     title="Cine AI Director - Local Inference Server",
     description="학습된 PPO 카메라 디렉터 모델을 UE5에 서빙합니다.",
     version="1.0.0",
+    lifespan=lifespan,
 )
-
-predictor = CineDirectorPredictor()
 
 
 class SceneStateRequest(BaseModel):
@@ -75,15 +88,6 @@ class ShotDecisionResponse(BaseModel):
 # ─────────────────────────────────────────────────────────────────────
 # 엔드포인트
 # ─────────────────────────────────────────────────────────────────────
-
-@app.on_event("startup")
-async def startup_event():
-    """서버 시작 시 모델 로드"""
-    ok = predictor.load()
-    if ok:
-        print("[server] 모델 로드 완료 - PPO 추론 모드")
-    else:
-        print("[server] 모델 없음 - 규칙 기반 폴백 모드로 작동합니다")
 
 
 @app.get("/health")

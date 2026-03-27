@@ -43,7 +43,9 @@ def plot_shot_distribution(df: pd.DataFrame, save_path: Path = None):
 
     if save_path:
         plt.savefig(save_path, dpi=150)
-    plt.show()
+        plt.close()
+    else:
+        plt.show()
 
 
 def plot_reward_by_scene(df: pd.DataFrame, save_path: Path = None):
@@ -61,7 +63,9 @@ def plot_reward_by_scene(df: pd.DataFrame, save_path: Path = None):
 
     if save_path:
         plt.savefig(save_path, dpi=150)
-    plt.show()
+        plt.close()
+    else:
+        plt.show()
 
 
 def plot_reward_curve(rewards: list[float], save_path: Path = None):
@@ -83,4 +87,6 @@ def plot_reward_curve(rewards: list[float], save_path: Path = None):
 
     if save_path:
         plt.savefig(save_path, dpi=150)
-    plt.show()
+        plt.close()
+    else:
+        plt.show()
